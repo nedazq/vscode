@@ -131,6 +131,23 @@ export class StickyScrollController extends Disposable implements IEditorContrib
 		}));
 		this._onDidResize();
 		this._readConfiguration();
+		const model = this._editor.getModel();
+		if (model) {
+			this._register(model.onDidChangeSpecialLineHeight((e) => {
+				e.changes.forEach((a) => {
+					const lineNumber = a.lineNumber;
+					const lineHeight = a.lineHeight;
+					if (lineHeight !== null) {
+						this._stickyScrollWidget.specialLineHeights.set(lineNumber, lineHeight);
+					} else {
+						this._stickyScrollWidget.specialLineHeights.delete(lineNumber);
+					}
+					if (this._widgetState.startLineNumbers.includes(lineNumber)) {
+						this._renderStickyScroll(0);
+					}
+				});
+			}));
+		}
 	}
 
 	get stickyScrollCandidateProvider(): IStickyLineCandidateProvider {
@@ -584,7 +601,6 @@ export class StickyScrollController extends Disposable implements IEditorContrib
 	}
 
 	findScrollWidgetState(): StickyScrollWidgetState {
-		const lineHeight: number = this._editor.getOption(EditorOption.lineHeight);
 		const maxNumberStickyLines = Math.min(this._maxStickyLines, this._editor.getOption(EditorOption.stickyScroll).maxLineCount);
 		const scrollTop: number = this._editor.getScrollTop();
 		let lastLineRelativePosition: number = 0;
@@ -597,19 +613,21 @@ export class StickyScrollController extends Disposable implements IEditorContrib
 			for (const range of candidateRanges) {
 				const start = range.startLineNumber;
 				const end = range.endLineNumber;
-				const depth = range.nestingDepth;
 				if (end - start > 0) {
-					const topOfElementAtDepth = (depth - 1) * lineHeight;
-					const bottomOfElementAtDepth = depth * lineHeight;
+					const topOfElementAtDepth = range.topOfElement;
+					const bottomOfElementAtDepth = range.bottomOfElement;
 
 					const bottomOfBeginningLine = this._editor.getBottomForLineNumber(start) - scrollTop;
 					const topOfEndLine = this._editor.getTopForLineNumber(end) - scrollTop;
 					const bottomOfEndLine = this._editor.getBottomForLineNumber(end) - scrollTop;
+					const heightOfEndLine = this._editor.getLineHeightForLineNumber(end);
+					const heightOfStartLine = this._editor.getLineHeightForLineNumber(start);
+					const delta = heightOfEndLine - heightOfStartLine;
 
-					if (topOfElementAtDepth > topOfEndLine && topOfElementAtDepth <= bottomOfEndLine) {
+					if (topOfElementAtDepth > topOfEndLine + delta && topOfElementAtDepth <= bottomOfEndLine - delta) {
 						startLineNumbers.push(start);
 						endLineNumbers.push(end + 1);
-						if (topOfElementAtDepth > bottomOfEndLine - lineHeight) {
+						if (topOfElementAtDepth > bottomOfEndLine - range.height) {
 							lastLineRelativePosition = bottomOfEndLine - bottomOfElementAtDepth;
 						}
 						break;

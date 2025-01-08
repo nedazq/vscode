@@ -1744,6 +1744,10 @@ declare namespace monaco.editor {
 		 */
 		glyphMargin?: IModelDecorationGlyphMarginOptions | null;
 		/**
+		 * If set, the decoration will override the line height of the lines it spans. This can only increase the line height, not decrease it.
+		 */
+		lineHeight?: number | undefined;
+		/**
 		 * If set, the decoration will be rendered in the lines decorations with this CSS class name.
 		 */
 		linesDecorationsClassName?: string | null;
@@ -1817,6 +1821,10 @@ declare namespace monaco.editor {
 		 * Defaults to {@link InjectedTextCursorStops.Both}.
 		*/
 		readonly cursorStops?: InjectedTextCursorStops | null;
+		/**
+		 * Line height of injected text
+		 */
+		readonly lineHeight?: number;
 	}
 
 	export enum InjectedTextCursorStops {
@@ -6093,6 +6101,7 @@ declare namespace monaco.editor {
 		 * Get the vertical position (top offset) for the position w.r.t. to the first line.
 		 */
 		getTopForPosition(lineNumber: number, column: number): number;
+		getLineHeightForLineNumber(lineNumber: number): number;
 		/**
 		 * Write the screen reader content to be the current selection
 		 */

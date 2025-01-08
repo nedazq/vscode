@@ -126,12 +126,15 @@ export interface IViewLayout {
 	getLinesViewportDataAtScrollTop(scrollTop: number): IPartialViewLinesViewportData;
 	getWhitespaces(): IEditorWhitespace[];
 
+	getSpecialLinesHeights(): Map<number, number>;
+
 	isAfterLines(verticalOffset: number): boolean;
 	isInTopPadding(verticalOffset: number): boolean;
 	isInBottomPadding(verticalOffset: number): boolean;
 	getLineNumberAtVerticalOffset(verticalOffset: number): number;
 	getVerticalOffsetForLineNumber(lineNumber: number, includeViewZones?: boolean): number;
 	getVerticalOffsetAfterLineNumber(lineNumber: number, includeViewZones?: boolean): number;
+	getLineHeightForLineNumber(lineNumber: number): number;
 	getWhitespaceAtVerticalOffset(verticalOffset: number): IViewWhitespaceViewportData | null;
 
 	/**
@@ -189,6 +192,11 @@ export interface IPartialViewLinesViewportData {
 	 * The height of a line.
 	 */
 	readonly lineHeight: number;
+
+	/**
+	 * The special line heights
+	 */
+	readonly specialLineHeights: Map<number, number>;
 }
 
 export interface IViewWhitespaceViewportData {
@@ -395,7 +403,8 @@ export class InlineDecoration {
 	constructor(
 		public readonly range: Range,
 		public readonly inlineClassName: string,
-		public readonly type: InlineDecorationType
+		public readonly type: InlineDecorationType,
+		public readonly lineHeight?: number | undefined
 	) {
 	}
 }
@@ -405,7 +414,8 @@ export class SingleLineInlineDecoration {
 		public readonly startOffset: number,
 		public readonly endOffset: number,
 		public readonly inlineClassName: string,
-		public readonly inlineClassNameAffectsLetterSpacing: boolean
+		public readonly inlineClassNameAffectsLetterSpacing: boolean,
+		public readonly lineHeight: number | undefined
 	) {
 	}
 
@@ -413,7 +423,8 @@ export class SingleLineInlineDecoration {
 		return new InlineDecoration(
 			new Range(lineNumber, this.startOffset + 1, lineNumber, this.endOffset + 1),
 			this.inlineClassName,
-			this.inlineClassNameAffectsLetterSpacing ? InlineDecorationType.RegularAffectingLetterSpacing : InlineDecorationType.Regular
+			this.inlineClassNameAffectsLetterSpacing ? InlineDecorationType.RegularAffectingLetterSpacing : InlineDecorationType.Regular,
+			this.lineHeight,
 		);
 	}
 }

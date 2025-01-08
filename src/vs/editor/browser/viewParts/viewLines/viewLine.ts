@@ -101,11 +101,13 @@ export class ViewLine implements IVisibleLine {
 		if (this._options.useGpu && this._viewGpuContext?.canRender(this._options, viewportData, lineNumber)) {
 			this._renderedViewLine?.domNode?.domNode.remove();
 			this._renderedViewLine = null;
+			console.log('return 1');
 			return false;
 		}
 
 		if (this._isMaybeInvalid === false) {
 			// it appears that nothing relevant has changed
+			console.log('return 2');
 			return false;
 		}
 
@@ -163,17 +165,21 @@ export class ViewLine implements IVisibleLine {
 			options.renderWhitespace,
 			options.renderControlCharacters,
 			options.fontLigatures !== EditorFontLigatures.OFF,
-			selectionsOnLine
+			selectionsOnLine,
+			lineHeight
 		);
 
 		if (this._renderedViewLine && this._renderedViewLine.input.equals(renderLineInput)) {
 			// no need to do anything, we have the same render input
+			console.log('return 3');
 			return false;
 		}
 
 		sb.appendString('<div style="top:');
 		sb.appendString(String(deltaTop));
 		sb.appendString('px;height:');
+		sb.appendString(String(lineHeight));
+		sb.appendString('px;line-height:');
 		sb.appendString(String(lineHeight));
 		sb.appendString('px;" class="');
 		sb.appendString(ViewLine.CLASS_NAME);

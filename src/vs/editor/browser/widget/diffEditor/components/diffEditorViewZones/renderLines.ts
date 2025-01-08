@@ -201,7 +201,8 @@ function renderOriginalLine(
 		options.renderWhitespace,
 		options.renderControlCharacters,
 		options.fontLigatures !== EditorFontLigatures.OFF,
-		null // Send no selections, original line cannot be selected
+		null,
+		options.lineHeight
 	), sb);
 
 	sb.appendString('</div>');

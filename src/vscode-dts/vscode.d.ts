@@ -1030,6 +1030,11 @@ declare module 'vscode' {
 		borderWidth?: string;
 
 		/**
+		 * Line height
+		 */
+		lineHeight?: number;
+
+		/**
 		 * CSS styling property that will be applied to text enclosed by a decoration.
 		 */
 		fontStyle?: string;
@@ -1114,6 +1119,10 @@ declare module 'vscode' {
 		 * CSS styling property that will be applied to text enclosed by a decoration.
 		 */
 		borderColor?: string | ThemeColor;
+		/**
+		 * Line height
+		 */
+		lineHeight?: number;
 		/**
 		 * CSS styling property that will be applied to the decoration attachment.
 		 */
